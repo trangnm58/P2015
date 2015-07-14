@@ -1,17 +1,15 @@
 // Piece.java
 
 package main;
-import java.util.*;
 
 public class Piece {
 	private Block[] body;
 	
 	// topLeft and botRight are just points in 8x8 area, don't need to be blocks
-	private Point topLeft;
-	private Point botRight;
+	public Point topLeft;
+	public Point botRight;
 	
-	public Piece() {
-	}
+	public Piece() {}
 	
 	/*
 	 * constructor function from array of Point
@@ -37,10 +35,11 @@ public class Piece {
 	 */
 	public Piece rotate() {
 		Block[] newBody = new Block[body.length];
-		
+		int x, y;
 		for (int i=0; i < body.length; i++) {
-			newBody[i].y = body[i].x;
-			newBody[i].x = 7 - body[i].y;
+			y = body[i].x;
+			x = 7 - body[i].y;
+			newBody[i] = new Block(x, y);
 		}
 		
 		return new Piece(newBody);
@@ -52,18 +51,23 @@ public class Piece {
 	 */
 	public Piece flip() {
 		Block[] newBody = new Block[body.length];
-		
+		int x, y;
 		for (int i=0; i < body.length; i++) {
-			newBody[i].x = (body[i].x + 7) % 8;
-			newBody[i].y = body[i].y;
+			x = 7 - body[i].x;
+			y = body[i].y;
+			newBody[i] = new Block(x, y);
 		}
 		
 		return new Piece(newBody);
 	}
 	
+	/*
+	 * find the top left point and the bottom right point
+	 */
 	private void findTopLeftBotRight() {
 		int maxX, maxY, minX, minY;
-		maxX = maxY = minX = minY = 0;
+		maxX = minX = body[0].x;
+		maxY = minY = body[0].y;
 		
 		for (int i=0; i < body.length; i++) {
 			if (body[i].x > maxX) {
