@@ -3,31 +3,57 @@
 package main;
 
 public class Piece {
-	private Block[] body;
+	public Block[] body;
 	
 	// topLeft and botRight are just points in 8x8 area, don't need to be blocks
 	public Point topLeft;
 	public Point botRight;
+	
+	// status variables
+	public boolean up; // true => "H", false => "T"
+	public int angle;
+	public int id;
 	
 	public Piece() {}
 	
 	/*
 	 * constructor function from array of Point
 	 */
-	public Piece(Block[] blocks) {
+	public Piece(Block[] blocks, int id) {
 		body = new Block[blocks.length];
 		for (int i=0; i < blocks.length; i++) {
 			body[i] = blocks[i];
 		}
+		
+		this.up = true;
+		this.angle = 0;
+		this.id = id;
 		// sort body
 		sortBody();
 		findTopLeftBotRight();
 	}
-
-	public Block[] getBody() {
-		return body;
+	
+	public Piece(Block[] blocks, boolean up, int angle, int id) {
+		this(blocks, id);
+		this.up = up;
+		this.angle = angle;
 	}
 	
+	/*
+	 * compare two Piece
+	 * true if two bodies are equal
+	 */
+	public boolean equals (Piece other) {
+		if (this.body.length != other.body.length) 
+			return false;
+		for (int i=0; i < this.body.length; i++) {
+			if (!this.body[i].equals(other.body[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/*
 	 * rotate function
 	 * rotate the piece 90* clockwise
@@ -42,7 +68,9 @@ public class Piece {
 			newBody[i] = new Block(x, y);
 		}
 		
-		return new Piece(newBody);
+		int newAngle = (this.angle + 90) % 360;
+		
+		return new Piece(newBody, this.up, newAngle, this.id);
 	}
 	
 	/*
@@ -58,7 +86,7 @@ public class Piece {
 			newBody[i] = new Block(x, y);
 		}
 		
-		return new Piece(newBody);
+		return new Piece(newBody, !this.up, angle, this.id);
 	}
 	
 	/*
