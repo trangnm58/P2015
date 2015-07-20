@@ -40,6 +40,13 @@ public class Piece {
 	}
 	
 	/*
+	 * copy constructor
+	 */
+	public Piece(Piece other) {
+		this(other.body, other.up, other.angle, other.id);
+	}
+	
+	/*
 	 * compare two Piece
 	 * true if two bodies are equal
 	 */
