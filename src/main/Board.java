@@ -113,6 +113,7 @@ public class Board {
 
 			this.pieceStack[this.putted] = null;
 			this.posStack[this.putted] = null;
+			return true;
 		} else {
 			return false;
 		}
@@ -124,6 +125,7 @@ public class Board {
 				return unPut(i);
 			}
 		}
+		return false;
 	}
 
 	public boolean undo() {
