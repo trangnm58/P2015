@@ -1,6 +1,7 @@
 // Board.java
 
 package main;
+import java.util.Stack;
 
 public class Board {
 	public int[][] matrix;
@@ -42,6 +43,32 @@ public class Board {
 		this();
 
 		for (Point pos: input) {
+			this.matrix[pos.x][pos.y] = 1;
+			this.empty--;
+		}
+
+		// find bottom right
+		boolean found = false;
+		for (int i = STANDARD_WIDTH + 7; i >= 7; i--) {
+			for (int j = STANDARD_WIDTH + 7; i >= 7; j--) {
+				if (this.matrix[i][j] == 0) {
+					this.bottomRight = new Point(i, j);
+					found = true;
+					break;
+				}
+			}
+
+			if (found) {
+				break;
+			}
+		}
+	}
+
+	public Board(Stack input) {
+		this();
+
+		while(!input.empty())
+			pos = input.pop();
 			this.matrix[pos.x][pos.y] = 1;
 			this.empty--;
 		}
