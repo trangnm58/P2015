@@ -1,9 +1,11 @@
+// Bucket.java
+
 package main;
 
 import java.util.HashMap;
 
 public class Bucket {
-	private HashMap<Integer, Piece> pieces = new HashMap<Integer, Piece>();
+	public HashMap<Integer, Piece> pieces = new HashMap<Integer, Piece>();
 
 	/*
 	 * push piece to pieces

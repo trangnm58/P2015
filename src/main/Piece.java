@@ -11,7 +11,7 @@ public class Piece {
 	
 	// status variables
 	public boolean up; // true => "H", false => "T"
-	public int angle;
+	public int angle;	// 0 / 90 / 180 / 270
 	public int id;
 	
 	public Piece() {}

@@ -69,21 +69,20 @@ public class Board {
 
 		while(!input.empty()) {
 			Block pos = input.pop();
-			this.matrix[pos.x][pos.y] = 1;
+			this.matrix[pos.x + 7][pos.y + 7] = 1;
 			this.empty--;
 		}
 
 		// find bottom right
 		boolean found = false;
-		for (int i = STANDARD_WIDTH + 7; i >= 7; i--) {
-			for (int j = STANDARD_WIDTH + 7; i >= 7; j--) {
+		for (int i = STANDARD_WIDTH + 6; i >= 7; i--) {
+			for (int j = STANDARD_WIDTH + 6; j >= 7; j--) {
 				if (this.matrix[i][j] == 0) {
 					this.bottomRight = new Point(i, j);
 					found = true;
 					break;
 				}
 			}
-
 			if (found) {
 				break;
 			}

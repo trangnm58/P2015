@@ -8,10 +8,9 @@ import java.util.Stack;
 import java.lang.String;
 
 public class IStream {
-	public Board oBoard;
-	public Bucket oBucket = new Bucket();
-
-	public IStream(String name) throws Exception {
+	public static Board oBoard;
+	
+	public IStream(String name, Bucket oBucket) throws Exception {
 		File input = new File(name);
 		Scanner sc = new Scanner(input);
 		Stack<Block> temp;
@@ -27,7 +26,9 @@ public class IStream {
 				}
 			}
 		}
-		this.oBoard = new Board(temp);
+		
+		// creat a board
+		oBoard = new Board(temp);
 
 		// read piece
 		int num = sc.nextInt();
@@ -49,7 +50,7 @@ public class IStream {
 			for (int k=0; k < body.length; k++) {
 				body[k] = temp.pop();
 			}
-			this.oBucket.push(new Piece(body, id++));
+			oBucket.push(new Piece(body, id++));
 		}
 
 		if (sc != null) sc.close();	
