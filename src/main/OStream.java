@@ -17,7 +17,7 @@ public class OStream {
 	
 	public static void writeToFile(Answer ans) {
 		try {
-			formatter = new Formatter("answer" + counter + ".txt");
+			formatter = new Formatter("answer" + ++counter + ".txt");
 			// update counter
 			counter++;
 		} catch (Exception e) {
