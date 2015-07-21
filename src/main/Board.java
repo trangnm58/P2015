@@ -64,11 +64,11 @@ public class Board {
 		}
 	}
 
-	public Board(Stack input) {
+	public Board(Stack<Block> input) {
 		this();
 
-		while(!input.empty())
-			pos = input.pop();
+		while(!input.empty()) {
+			Block pos = input.pop();
 			this.matrix[pos.x][pos.y] = 1;
 			this.empty--;
 		}

@@ -9,16 +9,16 @@ import java.lang.String;
 
 public class IStream {
 	public Board oBoard;
-	public Bucket oBucket;
+	public Bucket oBucket = new Bucket();
 
 	public IStream(String name) throws Exception {
 		File input = new File(name);
 		Scanner sc = new Scanner(input);
-		Stack temp;
+		Stack<Block> temp;
 		String read;
 
 		// read board
-		temp = new Stack();
+		temp = new Stack<Block>();
 		for (int i = 0; i < 32; i++) {
 			read = sc.nextLine();
 			for (int j = 0; j < 32; j++) {
@@ -31,9 +31,10 @@ public class IStream {
 
 		// read piece
 		int num = sc.nextInt();
+		int id = 2; // start id is 2
 		for (int i = 0; i < num; i++) {
 			// read 1 piece
-			temp = new Stack();
+			temp = new Stack<Block>();
 			read = sc.nextLine(); // skip 1 empty line in template
 			for (int j = 0; j < 8; j++) {
 				read = sc.nextLine();
@@ -43,7 +44,12 @@ public class IStream {
 					}
 				}
 			}
-			this.oBucket.push(new Piece(temp));
+			// convert temp to array of Block
+			Block[] body = new Block[temp.size()];
+			for (int k=0; k < body.length; k++) {
+				body[k] = temp.pop();
+			}
+			this.oBucket.push(new Piece(body, id++));
 		}
 
 		if (sc != null) sc.close();	
