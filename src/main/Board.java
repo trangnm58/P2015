@@ -21,8 +21,8 @@ public class Board {
 		this.pieceStack = new Piece[MAX_UNDO];
 		this.posStack = new Point[MAX_UNDO];
 
-		for (int i = 0; i < STANDARD_WIDTH; i++) {
-			for (int j = 0; j < STANDARD_HEIGHT; j++) {
+		for (int i = 0; i < STANDARD_WIDTH + 14; i++) {
+			for (int j = 0; j < STANDARD_HEIGHT + 14; j++) {
 				if (i < 7 ||
 				j < 7 ||
 				i > STANDARD_WIDTH + 6 ||
