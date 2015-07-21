@@ -109,30 +109,32 @@ public class Board {
 			}
 
 			// look for contact piece
-			int top = this.matrix[7 + pos.x + part.x][6 + pos.y + part.y];
-			int bottom = this.matrix[7 + pos.x + part.x][8 + pos.y + part.y];
-			int left = this.matrix[6 + pos.x + part.x][7 + pos.y + part.y];
-			int right = this.matrix[8 + pos.x + part.x][7 + pos.y + part.y];
-			if ((top > 1	&& top != p.id) ||
-				(bottom > 1 && bottom != p.id) ||
-				(left > 1 	&& left != p.id) ||
-				(right > 1 	&& right != p.id)) {
-				found = true;
+			if (this.putted > 0)
+				int top = this.matrix[7 + pos.x + part.x][6 + pos.y + part.y];
+				int bottom = this.matrix[7 + pos.x + part.x][8 + pos.y + part.y];
+				int left = this.matrix[6 + pos.x + part.x][7 + pos.y + part.y];
+				int right = this.matrix[8 + pos.x + part.x][7 + pos.y + part.y];
+				if ((top > 1	&& top != p.id) ||
+					(bottom > 1 && bottom != p.id) ||
+					(left > 1 	&& left != p.id) ||
+					(right > 1 	&& right != p.id)) {
+					found = true;
+				}
 			}
 		}
 
-		return found;
+		return found || this.putted == 0;
 	}
 
 	public boolean unPut(int pos) {
-		if (pos < putted && pos >= 0) {
+		if (pos < this.putted && pos >= 0) {
 			this.putted--;
 			for (Block part: this.pieceStack[pos].body) {
 				this.matrix[7 + this.posStack[pos].x + part.x][7 + this.posStack[pos].y + part.y] = 0;
 				this.empty++;
 			}
 
-			for (int i = pos; i < putted; i++) {
+			for (int i = pos; i < this.putted; i++) {
 				this.pieceStack[i] = this.pieceStack[i + 1];
 				this.posStack[i] = this.posStack[i + 1];		
 			}
@@ -146,7 +148,7 @@ public class Board {
 	}
 
 	public boolean unPut(Piece p) {
-		for (int i = 0; i < putted; i++) {
+		for (int i = 0; i < this.putted; i++) {
 			if (p.equals(this.pieceStack[i])) {
 				return unPut(i);
 			}
@@ -155,6 +157,6 @@ public class Board {
 	}
 
 	public boolean undo() {
-		return unPut(putted - 1);
+		return unPut(this.putted - 1);
 	}
 }
