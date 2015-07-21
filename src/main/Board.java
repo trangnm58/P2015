@@ -16,6 +16,11 @@ public class Board {
 	public static final int STANDARD_WIDTH = 32;
 	public static final int STANDARD_HEIGHT = 32;
 
+	// try put report
+	public static final int OK = 0;
+	public static final int OVERLAP = 1;
+	public static final int NO_TOUCH = 2;
+	
 	public Board() {
 		this.matrix = new int[STANDARD_WIDTH + 14][STANDARD_HEIGHT + 14]; // construct with 4 edges of 7
 		this.pieceStack = new Piece[MAX_UNDO];
@@ -100,16 +105,16 @@ public class Board {
 		this.putted++;
 	}
 
-	public boolean tPut(Piece p, Point pos) {
+	public int tPut(Piece p, Point pos) {
 		boolean found = false;
 		for (Block part: p.body) {
 			// check put on existed point
 			if (this.matrix[7 + pos.x + part.x][7 + pos.y + part.y] != 0) {
-				return false;
+				return OVERLAP;
 			}
 
 			// look for contact piece
-			if (this.putted > 0)
+			if (this.putted > 0) {
 				int top = this.matrix[7 + pos.x + part.x][6 + pos.y + part.y];
 				int bottom = this.matrix[7 + pos.x + part.x][8 + pos.y + part.y];
 				int left = this.matrix[6 + pos.x + part.x][7 + pos.y + part.y];
@@ -122,8 +127,8 @@ public class Board {
 				}
 			}
 		}
-
-		return found || this.putted == 0;
+		if (found || this.putted == 0) return OK;
+		else return NO_TOUCH;
 	}
 
 	public boolean unPut(int pos) {

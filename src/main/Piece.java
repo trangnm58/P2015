@@ -28,9 +28,13 @@ public class Piece {
 		this.up = true;
 		this.angle = 0;
 		this.id = id;
-		// sort body
-		sortBody();
-		findTopLeftBotRight();
+		
+		if (body.length > 0) {
+			// sort body
+			sortBody();
+			findTopLeftBotRight();
+		}
+		
 	}
 	
 	public Piece(Block[] blocks, boolean up, int angle, int id) {

@@ -22,7 +22,7 @@ public class IStream {
 			read = sc.nextLine();
 			for (int j = 0; j < 32; j++) {
 				if (read.charAt(j) == '1') {
-					temp.push(new Block(i, j));
+					temp.push(new Block(j, i));
 				}
 			}
 		}
@@ -41,7 +41,7 @@ public class IStream {
 				read = sc.nextLine();
 				for (int k = 0; k < 8; k++) {
 					if (read.charAt(k) == '1') {
-						temp.push(new Block(j, k));
+						temp.push(new Block(k, j));
 					}
 				}
 			}
