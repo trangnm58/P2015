@@ -2,6 +2,9 @@
 
 package main;
 
+import java.util.Stack;
+import java.util.ArrayList;
+
 public class Piece {
 	public Block[] body;
 	
@@ -34,7 +37,6 @@ public class Piece {
 			sortBody();
 			findTopLeftBotRight();
 		}
-		
 	}
 	
 	public Piece(Block[] blocks, boolean up, int angle, int id) {
@@ -49,7 +51,7 @@ public class Piece {
 	public Piece(Piece other) {
 		this(other.body, other.up, other.angle, other.id);
 	}
-	
+
 	/*
 	 * compare two Piece
 	 * true if two bodies are equal
@@ -65,6 +67,42 @@ public class Piece {
 		return true;
 	}
 
+	/*
+	 * compare two equivalent Pieces
+	 */
+	public boolean equiv(Piece other) {
+		// equals => equivalent
+		if (equals(other)) return true;
+
+		// if body.length are different
+		if (body.length != other.body.length) return false;
+
+		// if the contain areas are not the same
+		int w1, w2, h1, h2;
+		w1 = botRight.x - topLeft.x;
+		h1 = botRight.y - topLeft.y;
+		w2 = other.botRight.x - other.topLeft.x;
+		h2 = other.botRight.y - other.topLeft.y;
+		if (w1 != w2 || h1 != h2) return false;
+
+		// new body has ref = topLeft
+		Block[] body1 = new Block[body.length];
+		Block[] body2 = new Block[body.length];
+		// change body1 and body2
+		for (int i=0; i < body.length; i++) {
+			body1[i] = new Block(body[i].x - topLeft.x, body[i].y - topLeft.y);
+			body2[i] = new Block(other.body[i].x - other.topLeft.x, other.body[i].y - other.topLeft.y);
+		}
+		Piece p1 = new Piece();
+		Piece p2 = new Piece();
+		p1.body = body1;
+		p2.body = body2;
+		
+		if (p1.equals(p2)) return true;
+		
+		return false;
+	}
+	
 	/*
 	 * rotate function
 	 * rotate the piece 90* clockwise
@@ -98,6 +136,53 @@ public class Piece {
 		}
 		
 		return new Piece(newBody, !this.up, angle, this.id);
+	}
+	
+	public Stack<Piece> parsePiece() {
+		// find all status and push in pieces
+		// order: rotate => flip => rotate of flip
+		ArrayList<Piece> pieces = new ArrayList<Piece>();
+		
+		// add all rotate pieces if different
+		Piece p = rotate();
+		while (!equiv(p)) {
+			pieces.add(p);
+			p = p.rotate();
+		}
+		// add flip piece if different from original and all pieces in "pieces"
+		p = flip();
+		if (!equiv(p)) {
+			boolean flag = false;
+			for (int i=0; i < pieces.size(); i++) {
+				// if flip piece equals 1 piece in pieces
+				if (p.equiv(pieces.get(i))) {
+					flag = true;
+				}
+			}
+			if (!flag) pieces.add(p);
+		}
+		// add all rotate pieces of flip piece
+		Piece p2 = p.rotate();	// p is now flip piece
+		if (!equiv(p2)) {
+			while (!p.equiv(p2)) {
+				boolean flag = false;
+				for (int i = 0; i < pieces.size(); i++) {
+					// if flip piece equals 1 piece in pieces
+					if (p2.equiv(pieces.get(i))) {
+						flag = true;
+					}
+				}
+				if (!flag) pieces.add(p2);
+				p2 = p2.rotate();
+			}
+		}
+		
+		// convert to Stack
+		Stack<Piece> temp = new Stack<Piece>();
+		while (pieces.size() > 0) {
+			temp.push(pieces.remove(0));
+		}
+		return temp;
 	}
 	
 	/*
