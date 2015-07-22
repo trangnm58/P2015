@@ -6,13 +6,10 @@ import java.util.HashMap;
 
 public class Answer {
 	public HashMap<Integer, Line> lines = new HashMap<Integer, Line>();
-	public int biggest;
-	
+
 	public void push (Point ref, Piece p) {
 		Line line = new Line(ref, p);
-		
 		lines.put(p.id, line);
-		if (p.id > biggest) biggest = p.id;
 	}
 }
 

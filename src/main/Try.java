@@ -9,16 +9,18 @@ public class Try {
 		Bucket bucket = new Bucket();
 		
 		// read quest file and put into Board + Bucket
-		IStream in = new IStream("quest1.txt", bucket);
+		IStream in = new IStream("quest3.txt", bucket);
 		board = in.oBoard;
 		
 		// define Brain object
 		Brain brain = new Brain(board, bucket);
 		brain.think();
 		
-		for (int i=0; i < 46; i++) {
-			for (int j=0; j < 46; j++) {
-				System.out.print(board.matrix[i][j]);
+		for (int i=0; i < 39; i++) {
+			for (int j=0; j < 39; j++) {
+				if (board.matrix[j][i] < 10)
+				System.out.print(board.matrix[j][i] + " ");
+				else System.out.print(board.matrix[j][i]);
 			}
 			System.out.println();
 		}

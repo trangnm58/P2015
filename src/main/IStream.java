@@ -9,6 +9,7 @@ import java.lang.String;
 
 public class IStream {
 	public static Board oBoard;
+	public static int numOfPieces;
 	
 	public IStream(String name, Bucket oBucket) throws Exception {
 		File input = new File(name);
@@ -32,6 +33,7 @@ public class IStream {
 
 		// read piece
 		int num = sc.nextInt();
+		numOfPieces = num;
 		int id = 2; // start id is 2
 		for (int i = 0; i < num; i++) {
 			// read 1 piece
