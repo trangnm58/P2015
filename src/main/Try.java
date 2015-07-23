@@ -10,10 +10,10 @@ public class Try {
 		
 		// read quest file and put into Board + Bucket
 		IStream in = new IStream("quest3.txt", bucket);
-		board = in.oBoard;
+		board = IStream.oBoard;
 		
 		// define Brain object
-		Brain brain = new Brain(board, bucket);
+		LinearBrain brain = new LinearBrain(board, bucket);
 		brain.think();
 		
 		for (int i=0; i < 39; i++) {
@@ -25,5 +25,4 @@ public class Try {
 			System.out.println();
 		}
 	}
-
 }
