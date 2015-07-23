@@ -13,9 +13,10 @@ public class OStream {
 
 	public static Formatter formatter;
 
-	public static void writeToFile(Answer ans) {
+	public static void writeToFile(Answer ans, int n) {
 		try {
-			formatter = new Formatter("answer.txt");
+			String score = String.format("%04d", n);
+			formatter = new Formatter("answer" + score  + ".txt");
 		} catch (Exception e) {
 			System.out.println("Can't create file");
 		}

@@ -42,7 +42,7 @@ public class LinearBrain extends Brain {
 		}
 		
 		// write to file
-		OStream.writeToFile(answer);
+		OStream.writeToFile(answer, board.empty);
 	}
 
 	// move all the way up from pos until valid or reach limit
