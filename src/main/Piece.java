@@ -4,6 +4,7 @@ package main;
 
 import java.util.Stack;
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class Piece {
 	public Block[] body;
@@ -139,7 +140,7 @@ public class Piece {
 		return new Piece(newBody, !this.up, angle, this.id);
 	}
 	
-	public Stack<Piece> parsePiece() {
+	public Vector<Piece> parsePiece() {
 		// find all status and push in pieces
 		// order: rotate => flip => rotate of flip
 		ArrayList<Piece> pieces = new ArrayList<Piece>();
@@ -178,11 +179,8 @@ public class Piece {
 			}
 		}
 		
-		// convert to Stack
-		Stack<Piece> temp = new Stack<Piece>();
-		while (pieces.size() > 0) {
-			temp.push(pieces.remove(0));
-		}
+		// convert to Vector
+		Vector<Piece> temp = new Vector<Piece>(pieces);
 		return temp;
 	}
 	
