@@ -2,11 +2,12 @@
 
 package main;
 import java.util.Stack;
+import java.util.Vector;
 
 public class Board {
 	public int[][] matrix;
-	public Piece[] pieceStack;
-	public Point[] posStack;
+	public Stack<Piece> pieceStack;
+	public Stack<Point> posStack;
 	public Point bottomRight;
 
 	public int putted;
@@ -23,8 +24,8 @@ public class Board {
 	
 	public Board() {
 		this.matrix = new int[STANDARD_WIDTH + 14][STANDARD_HEIGHT + 14]; // construct with 4 edges of 7
-		this.pieceStack = new Piece[MAX_UNDO];
-		this.posStack = new Point[MAX_UNDO];
+		this.pieceStack = new Stack<Piece>();
+		this.posStack = new Stack<Point>();
 
 		for (int i = 0; i < STANDARD_WIDTH + 14; i++) {
 			for (int j = 0; j < STANDARD_HEIGHT + 14; j++) {
@@ -42,31 +43,6 @@ public class Board {
 		this.bottomRight = new Point(STANDARD_WIDTH + 7, STANDARD_WIDTH + 7);
 		this.putted = 0;
 		this.empty = STANDARD_WIDTH * STANDARD_HEIGHT;
-	}
-
-	public Board(Point[] input) {
-		this();
-
-		for (Point pos: input) {
-			this.matrix[pos.x][pos.y] = 1;
-			this.empty--;
-		}
-
-		// find bottom right
-		boolean found = false;
-		for (int i = STANDARD_WIDTH + 7; i >= 7; i--) {
-			for (int j = STANDARD_WIDTH + 7; i >= 7; j--) {
-				if (this.matrix[i][j] == 0) {
-					this.bottomRight = new Point(i, j);
-					found = true;
-					break;
-				}
-			}
-
-			if (found) {
-				break;
-			}
-		}
 	}
 
 	public Board(Stack<Block> input) {
@@ -100,8 +76,8 @@ public class Board {
 			this.empty--;
 		}
 
-		this.pieceStack[this.putted] = new Piece(p);
-		this.posStack[this.putted] = new Point(pos);
+		this.pieceStack.push(new Piece(p));
+		this.posStack.push(new Point(pos));
 		this.putted++;
 	}
 
@@ -131,37 +107,48 @@ public class Board {
 		else return NO_TOUCH;
 	}
 
-	public boolean unPut(int pos) {
-		if (pos < this.putted && pos >= 0) {
-			this.putted--;
-			for (Block part: this.pieceStack[pos].body) {
-				this.matrix[7 + this.posStack[pos].x + part.x][7 + this.posStack[pos].y + part.y] = 0;
+	public boolean undo() {
+		Point pos = this.posStack.pop();
+		if (pos != null) {
+			for (Block part: this.pieceStack.pop().body) {
+				this.matrix[7 + pos.x + part.x][7 + pos.y + part.y] = 0;
 				this.empty++;
 			}
-
-			for (int i = pos; i < this.putted; i++) {
-				this.pieceStack[i] = this.pieceStack[i + 1];
-				this.posStack[i] = this.posStack[i + 1];		
-			}
-
-			this.pieceStack[this.putted] = null;
-			this.posStack[this.putted] = null;
+			this.putted--;
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	public boolean unPut(Piece p) {
-		for (int i = 0; i < this.putted; i++) {
-			if (p.equals(this.pieceStack[i])) {
-				return unPut(i);
+	public Vector<Point> where(Piece p) {
+		Vector<Point> tempVector = new Vector<Point>();
+		for (int i = -7; i < 32; i++) {
+			for (int j = -7; j < 32; j++) {
+				Point newPoint = new Point(i, j);
+				if (this.tPut(p, newPoint) == OK) {
+					tempVector.add(newPoint);
+				}
 			}
 		}
-		return false;
-	}
 
-	public boolean undo() {
-		return unPut(this.putted - 1);
+		return tempVector;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Board clone() {
+		Board newBoard = new Board();
+		for (int i = 0; i < STANDARD_WIDTH + 14; i++) {
+			for (int j = 0; j < STANDARD_HEIGHT + 14; j++) {
+				newBoard.matrix[i][j] = this.matrix[i][j];
+			}
+		}
+		newBoard.pieceStack = (Stack<Piece>) this.pieceStack.clone();
+		newBoard.posStack = (Stack<Point>) this.posStack.clone();
+		newBoard.bottomRight = new Point(this.bottomRight.x, this.bottomRight.y);
+		newBoard.putted = this.putted;
+		newBoard.empty = this.empty;
+		
+		return newBoard;
 	}
 }

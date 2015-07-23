@@ -13,8 +13,8 @@ public class Answer {
 	 * constructor with Board
 	 */
 	public Answer(Board board) {
-		for (int i=0; i < board.pieceStack.length; i++) {
-			push(board.posStack[i], board.pieceStack[i]);
+		while(!board.pieceStack.isEmpty()){
+			push(board.posStack.pop(), board.pieceStack.pop());
 		}
 	}
 	

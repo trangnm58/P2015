@@ -3,20 +3,31 @@
 package main;
 
 import java.util.HashMap;
+import java.util.PriorityQueue;
 
 public class Bucket {
-	public HashMap<Integer, Piece> pieces = new HashMap<Integer, Piece>();
-	public int minSize = 17; // > max size of a piece
-	private int minId = 1030;
+	public HashMap<Integer, Piece> pieces;
+	public int minSize;
+	public PriorityQueue<Integer> idQueue;
+	public PriorityQueue<Integer> sizeQueue;
+
+	public Bucket() {
+		pieces = new HashMap<Integer, Piece>();
+		minSize = 17;
+		idQueue = new PriorityQueue<Integer>();
+		sizeQueue = new PriorityQueue<Integer>();
+		idQueue.add(1030);
+		sizeQueue.add(17);
+	}
+
 	/*
 	 * push piece to pieces
 	 */
 	public boolean push (Piece piece) {
 		pieces.put(piece.id, piece);
-		if (piece.body.length < minSize) {
-			minSize = piece.body.length;
-		}
-		if (piece.id < minId) minId = piece.id;
+		idQueue.add(piece.id);
+		sizeQueue.add(piece.body.length);
+		minSize = sizeQueue.peek();
 		return true;
 	}
 	
@@ -24,14 +35,12 @@ public class Bucket {
 	 * pop the piece with the smallest id
 	 */
 	public Piece pop() {
-		Piece p = get(minId);
-		
-		// update minId
-		Piece next = pieces.get(++minId);
-		while (next == null) {
-			next = pieces.get(++minId);
+		if (pieces.size() != 0) {
+			Piece p = get(idQueue.peek());	
+			return p;
+		} else {
+			return null;
 		}
-		return p;
 	}
 	
 	/*
@@ -40,6 +49,11 @@ public class Bucket {
 	public Piece get (int id) {
 		Piece piece = pieces.get(id);
 		pieces.remove(id);
+		if (piece != null) {
+			idQueue.remove(piece.id);
+			sizeQueue.remove(piece.body.length);
+			minSize = sizeQueue.peek();
+		}
 		return piece;
 	}
 }
