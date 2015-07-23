@@ -57,6 +57,7 @@ public class Piece {
 	 * true if two bodies are equal
 	 */
 	public boolean equals (Piece other) {
+		if (this == other) return true;
 		if (this.body.length != other.body.length) 
 			return false;
 		for (int i=0; i < this.body.length; i++) {
