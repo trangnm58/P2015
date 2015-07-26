@@ -2,7 +2,6 @@
 
 package main;
 
-import java.util.Stack;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -19,6 +18,14 @@ public class Piece {
 	public int id;
 	
 	public Piece() {}
+	
+	public Piece(int id) {
+		body = new Block[1];
+		body[0] = new Block(0, 0);
+		this.up = true;
+		this.angle = 0;
+		this.id = id;
+	}
 	
 	/*
 	 * constructor function from array of Point

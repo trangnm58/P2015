@@ -2,12 +2,14 @@
 
 package main;
 
-import java.util.Vector;
 import java.util.Random;
+import java.util.Vector;
 
 public class RecursionBrain extends Brain {
 	private int minPoint;
 	private int minPiece;
+	public static final int MAX_SKIP = 150;
+	private static final boolean ACCEPT_HOLE = true; 
 
 	public RecursionBrain(Board board, Bucket bucket) {
 		super(board, bucket);
@@ -34,15 +36,16 @@ public class RecursionBrain extends Brain {
 				OStream.writeToFile(this.answer, this.minPoint);
 			}
 			// else do nothing
-		} else {
+		} else if (board.empty - bucket.totalBlock < Math.min(minPoint, MAX_SKIP)) {
 			Piece newPiece = bucket.pop();
 			// get all state of this piece
 			Vector<Piece> allState = newPiece.parsePiece();
 			// create a random generator
 			Random randomGenerator = new Random();
+			
 
 			int randomUse = randomGenerator.nextInt(200);
-			if (randomUse >= 20) {
+			if (randomUse >= 20) { // not use after use
 				// in case of use the piece, ask the board for all
 				// available point to put this state
 				while (!allState.isEmpty()) {
@@ -52,19 +55,23 @@ public class RecursionBrain extends Brain {
 
 					while (!allPosition.isEmpty()) {
 						// put random in state and continue to think
-						int randomInt = randomGenerator.nextInt(allPosition
-								.size());
+						int randomInt = randomGenerator.nextInt(allPosition.size());
 						Point temp = allPosition.remove(randomInt);
 
 						Board cBoard = (Board) board.clone();
 						cBoard.put(aState, temp);
-						this.think(cBoard, bucket);
+						int lookHole = cBoard.look();
+						if (lookHole > bucket.minSize || board.empty == lookHole || ACCEPT_HOLE) {
+							this.think(cBoard, bucket);
+						} else {
+							cBoard.undo();
+						}
 					}
 				}
 				// in case of not use this piece, continue to think
 				Board cBoard = (Board) board.clone();
 				this.think(cBoard, bucket);
-			} else {
+			} else { // use after not use
 				// in case of not use this piece, continue to think
 				Board cBoard = (Board) board.clone();
 				this.think(cBoard, bucket);
@@ -77,13 +84,17 @@ public class RecursionBrain extends Brain {
 
 					while (!allPosition.isEmpty()) {
 						// put random in state and continue to think
-						int randomInt = randomGenerator.nextInt(allPosition
-								.size());
+						int randomInt = randomGenerator.nextInt(allPosition.size());
 						Point temp = allPosition.remove(randomInt);
 
 						cBoard = (Board) board.clone();
 						cBoard.put(aState, temp);
-						this.think(cBoard, bucket);
+						int lookHole = cBoard.look();
+						if (lookHole > bucket.minSize || board.empty == lookHole || ACCEPT_HOLE) {
+							this.think(cBoard, bucket);
+						} else {
+							cBoard.undo();
+						}
 					}
 				}
 			}

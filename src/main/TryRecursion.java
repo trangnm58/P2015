@@ -9,7 +9,7 @@ public class TryRecursion {
 		Bucket bucket = new Bucket();
 		
 		// read quest file and put into Board + Bucket
-		IStream in = new IStream("Medium.txt", bucket);
+		IStream in = new IStream("8.txt", bucket);
 		board = IStream.oBoard;
 		
 		// define Brain object

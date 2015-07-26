@@ -135,6 +135,35 @@ public class Board {
 		return tempVector;
 	}
 	
+	public int look() {
+		int minHole = 1024;
+		for (int i = 0; i < 32; i++) {
+			for (int j = 0; j < 32; j++) {
+				if (this.matrix[i][j] == 0) {
+					minHole = Math.min(minHole, mark(i, j));
+				}
+			}
+		}
+		for (int i = 0; i < 32; i++) {
+			for (int j = 0; j < 32; j++) {
+				if (this.matrix[i][j] == -1) {
+					this.matrix[i][j] = 0;
+				}
+			}
+		}
+		
+		return minHole;
+	}
+	
+	public int mark(int i, int j) {
+		if (this.matrix[i][j] == 0) {
+			this.matrix[i][j] = -1;
+			
+			return 1 + mark(i - 1, j) + mark(i, j - 1) + mark(i + 1, j) + mark(i, j + 1);
+		}
+		return 0;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public Board clone() {
 		Board newBoard = new Board();

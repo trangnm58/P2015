@@ -10,6 +10,7 @@ public class Bucket {
 	public int minSize;
 	public PriorityQueue<Integer> idQueue;
 	public PriorityQueue<Integer> sizeQueue;
+	public int totalBlock;
 
 	public Bucket() {
 		pieces = new HashMap<Integer, Piece>();
@@ -18,6 +19,7 @@ public class Bucket {
 		sizeQueue = new PriorityQueue<Integer>();
 		idQueue.add(1030);
 		sizeQueue.add(17);
+		totalBlock = 0;
 	}
 
 	/*
@@ -28,6 +30,7 @@ public class Bucket {
 		idQueue.add(piece.id);
 		sizeQueue.add(piece.body.length);
 		minSize = sizeQueue.peek();
+		totalBlock += piece.body.length;
 		return true;
 	}
 	
@@ -48,11 +51,12 @@ public class Bucket {
 	 */
 	public Piece get (int id) {
 		Piece piece = pieces.get(id);
-		pieces.remove(id);
 		if (piece != null) {
+			pieces.remove(id);
 			idQueue.remove(piece.id);
 			sizeQueue.remove(piece.body.length);
 			minSize = sizeQueue.peek();
+			totalBlock -= piece.body.length;
 		}
 		return piece;
 	}
