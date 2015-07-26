@@ -42,6 +42,10 @@ public class Point {
 		return(x == pt.x && y == pt.y);
 	}
 	
+	public Point add(Point p) {
+		return new Point(p.x + x, p.y + y);
+	}
+	
 	public String toString() {
 		return "(" + x + "," + y + ")";
 	}

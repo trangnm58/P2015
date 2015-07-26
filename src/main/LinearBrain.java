@@ -2,9 +2,10 @@ package main;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Vector;
 
 public class LinearBrain extends Brain {
-	Queue<Point> goodPos = new LinkedList<Point>();
+	Queue<GoodPos> goodPos = new LinkedList<GoodPos>();
 	
 	public LinearBrain(Board board, Bucket bucket) {
 		super(board, bucket);
@@ -24,21 +25,46 @@ public class LinearBrain extends Brain {
 					answer.push(ref, firstPiece);
 					flag = true;
 					
-					// add 2 new goodPos
-					Point p1 = new Point(firstPiece.botRight.x + 1 + ref.x, firstPiece.topLeft.y + ref.y);
-					Point p2 = new Point(firstPiece.topLeft.x + ref.x, firstPiece.botRight.y + 1 + ref.y);
-					goodPos.add(p1);
-					goodPos.add(p2);
+					// add new pos
+					addNewPos(firstPiece.topLeft.add(ref), firstPiece.botRight.add(ref));
+					
 					break;
 				}
 			}
 			if (flag) break;
 		}
 		
+		
 		while (bucket.pieces.size() > 0) {
 			Piece nextPiece = bucket.get(id++);
-			Point pos = goodPos.remove();
-			move(nextPiece, pos);
+			// vector of all status of nextPiece
+			Vector<Piece> pieces = nextPiece.parsePiece();
+
+			// loop through all status
+			for (int i=0; i < pieces.size(); i++) {
+				boolean flag = false;
+				GoodPos pos = findNextPos();
+				if (pos != null) {
+					GoodPos temp = pos;
+					while (flag == false) {
+						flag = move(pieces.elementAt(i), temp);
+						if (flag == false) {
+							temp = findNextPos();
+							if (temp.equals(pos)) {
+								goodPos.add(temp);
+								break;
+							}
+						} else {
+							break;
+						}
+					}
+					if (flag == true) break;
+				}
+				// there is no good position
+				else {
+					break;
+				}
+			}
 		}
 		
 		// write to file
@@ -47,63 +73,250 @@ public class LinearBrain extends Brain {
 
 	// move all the way up from pos until valid or reach limit
 	// and the move to the left until invalid
-	private void move(Piece p, Point pos) {
+	private boolean move(Piece p, GoodPos pos) {
 		Point ref = new Point(pos.x - p.topLeft.x, pos.y - p.topLeft.y);
-		if (board.tPut(p, ref) == Board.OVERLAP) {
-			// move this good position to the end of the queue
-			goodPos.add(pos);
-			move2(p, goodPos.remove(), pos);
+		if (board.tPut(p, ref) == Board.OK) {
+			foundPosition(p, ref);
+
+			return true;
+		} else if (board.tPut(p, ref) == Board.OVERLAP) {
+			return moveOutOverlap(p, ref, pos);
 		} else {
-			while (board.tPut(p, ref) == Board.NO_TOUCH) {
-				ref.y--;
-			}
-			if (board.tPut(p, ref) != Board.OK)
-				ref.y++;
-			while (board.tPut(p, ref) != Board.OVERLAP) {
-				ref.x--;
-			}
-			ref.x++;
-			board.put(p, ref);
-
-			// generate the answer
-			answer.push(ref, p);
-
-			// add 2 new goodPos
-			Point p1 = new Point(p.botRight.x + 1 + ref.x, p.topLeft.y + ref.y);
-			Point p2 = new Point(p.topLeft.x + ref.x, p.botRight.y + 1 + ref.y);
-			goodPos.add(p1);
-			goodPos.add(p2);
+			return moveToTouch(p, ref, pos);
 		}
 	}
 	
-	private void move2(Piece p, Point pos, Point pos2) {
-		if (!pos.equals(pos2)) {
-			Point ref = new Point(pos.x - p.topLeft.x, pos.y - p.topLeft.y);
-			if (board.tPut(p, ref) == Board.OVERLAP) {
-				// move this good position to the end of the queue
-				goodPos.add(pos);
-				move2(p, goodPos.remove(), pos2);
-			} else {
-				while (board.tPut(p, ref) == Board.NO_TOUCH) {
-					ref.y--;
-				}
-				if (board.tPut(p, ref) != Board.OK)
-					ref.y++;
-				while (board.tPut(p, ref) != Board.OVERLAP) {
-					ref.x--;
-				}
-				ref.x++;
-				board.put(p, ref);
-
-				// generate the answer
-				answer.push(ref, p);
-
-				// add 2 new goodPos
-				Point p1 = new Point(p.botRight.x + 1 + ref.x, p.topLeft.y + ref.y);
-				Point p2 = new Point(p.topLeft.x + ref.x, p.botRight.y + 1 + ref.y);
-				goodPos.add(p1);
-				goodPos.add(p2);
+	private void addNewPos(Point topLeft, Point botRight) {
+		for (int y=topLeft.y; y <= botRight.y; y++) {
+			if (!board.isOccupied(botRight.x + 1, y)) {
+				goodPos.add(new GoodPos(botRight.x + 1, y, "right"));
+			}
+			if (!board.isOccupied(topLeft.x - 1, y)) {
+				goodPos.add(new GoodPos(topLeft.x - 1, y, "left"));
 			}
 		}
+		for (int x=topLeft.x; x <= botRight.x; x++) {
+			if (!board.isOccupied(x, botRight.y + 1)) {
+				goodPos.add(new GoodPos(x, botRight.y + 1, "bottom"));
+			}
+			if (!board.isOccupied(x, topLeft.y - 1)) {
+				goodPos.add(new GoodPos(x, topLeft.y - 1, "top"));
+			}
+		}
+	}
+	
+	private GoodPos findNextPos() {
+		if (goodPos.size() > 0) {
+			GoodPos next = goodPos.remove();
+			while (board.isOccupied(next.x, next.y) && goodPos.size() > 0) {
+				next = goodPos.remove();
+			}
+			if (board.isOccupied(next.x, next.y)) {
+				return null;
+			}
+			return next;
+		} else return null;
+	}
+	
+	private void foundPosition (Piece p, Point ref) {
+		board.put(p, ref);
+		
+		// generate the answer
+		answer.push(ref, p);
+		
+		// add new pos
+		addNewPos(p.topLeft.add(ref), p.botRight.add(ref));
+	}
+
+	private boolean moveToTouch(Piece p, Point ref, GoodPos pos) {
+		if (pos.type == "top") {
+			if (moveDownLeft(p, ref, pos) == false) {
+				goodPos.add(pos);
+				return false;
+			} else return true;
+		}
+		if (pos.type == "right") {
+			if (moveLeftUp(p, ref,pos) == false) {
+				goodPos.add(pos);
+				return false;
+			} else return true;
+		}
+		if (pos.type == "bottom") {
+			if (moveUpLeft(p, ref, pos) == false) {
+				goodPos.add(pos);
+				return false;
+			} else return true;
+		}
+		if (pos.type == "left") {
+			if (moveRightUp(p, ref, pos) == false) {
+				goodPos.add(pos);
+				return false;
+			} else return true;
+		}
+		return false;
+	}
+	
+	private boolean moveOutOverlap(Piece p, Point ref, GoodPos pos) {
+		boolean flag = false;
+		// go to the right
+		while (p.botRight.x + ref.x > pos.x) {
+			ref.x--;
+		}
+		if (board.tPut(p, ref) != Board.OVERLAP && flag == false) {
+			flag = moveRightUp(p, ref, pos);
+			if (flag == true) return flag;
+		}
+		// go to the left
+		while (p.botRight.x + ref.x > pos.x) {
+			ref.x++;
+		}
+		if (board.tPut(p, ref) != Board.OVERLAP && flag == false) {
+			flag = moveLeftUp(p, ref, pos);
+			if (flag = true) return flag;
+		}
+		// go down
+		while (p.botRight.y + ref.y > pos.y) {
+			ref.y--;
+		}
+		if (board.tPut(p, ref) != Board.OVERLAP && flag == false) {
+			flag = moveDownLeft(p, ref, pos);
+			if (flag = true) return flag;
+		}
+		// go up
+		while (p.botRight.y + ref.y > pos.y) {
+			ref.y++;
+		}
+		if (board.tPut(p, ref) != Board.OVERLAP && flag == false) {
+			flag = moveUpLeft(p, ref, pos);
+			if (flag = true) return flag;
+		}
+		goodPos.add(pos);
+		return false;
+	}
+
+	private boolean moveLeftUp(Piece p, Point ref, GoodPos pos) {
+		while (board.tPut(p, ref) == Board.NO_TOUCH) {
+			ref.x--;
+		}
+		if (board.tPut(p, ref) == Board.OK) {
+			while (board.tPut(p, ref) == Board.OK) {
+				ref.y--;
+			}
+			ref.y++;
+			
+			foundPosition(p, ref);
+			
+			return true;
+		} else {
+			ref.x++;
+			while (board.tPut(p, ref) == Board.NO_TOUCH) {
+				ref.y--;
+			}
+			if (board.tPut(p, ref) == Board.OK) {
+				foundPosition(p, ref);
+				
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+	
+	private boolean moveRightUp(Piece p, Point ref, GoodPos pos) {
+		while (board.tPut(p, ref) == Board.NO_TOUCH) {
+			ref.x++;
+		}
+		if (board.tPut(p, ref) == Board.OK) {
+			while (board.tPut(p, ref) == Board.OK) {
+				ref.y--;
+			}
+			ref.y++;
+			
+			foundPosition(p, ref);
+			
+			return true;
+		} else {
+			ref.x--;
+			while (board.tPut(p, ref) == Board.NO_TOUCH) {
+				ref.y--;
+			}
+			if (board.tPut(p, ref) == Board.OK) {
+				foundPosition(p, ref);
+				
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+	
+	private boolean moveDownLeft(Piece p, Point ref, GoodPos pos) {
+		while (board.tPut(p, ref) == Board.NO_TOUCH) {
+			ref.y++;
+		}
+		if (board.tPut(p, ref) == Board.OK) {
+			while (board.tPut(p, ref) == Board.OK) {
+				ref.x--;
+			}
+			ref.x++;
+			
+			foundPosition(p, ref);
+			
+			return true;
+		} else {
+			ref.y--;
+			while (board.tPut(p, ref) == Board.NO_TOUCH) {
+				ref.x--;
+			}
+			if (board.tPut(p, ref) == Board.OK) {
+				foundPosition(p, ref);
+				
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+	
+	private boolean moveUpLeft(Piece p, Point ref, GoodPos pos) {
+		while (board.tPut(p, ref) == Board.NO_TOUCH) {
+			ref.y--;
+		}
+		if (board.tPut(p, ref) == Board.OK) {
+			while (board.tPut(p, ref) == Board.OK) {
+				ref.x--;
+			}
+			ref.x++;
+			
+			foundPosition(p, ref);
+			
+			return true;
+		} else {
+			ref.y++;
+			while (board.tPut(p, ref) == Board.NO_TOUCH) {
+				ref.x--;
+			}
+			if (board.tPut(p, ref) == Board.OK) {
+				foundPosition(p, ref);
+				
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+}
+
+class GoodPos extends Point {
+	public String type;
+	
+	GoodPos(int x, int y, String type) {
+		super(x, y);
+		this.type = type;
+	}
+	
+	GoodPos(Point p, String type) {
+		super(p);
+		this.type = type;
 	}
 }

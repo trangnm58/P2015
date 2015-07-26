@@ -180,4 +180,10 @@ public class Board {
 		
 		return newBoard;
 	}
+	
+	public boolean isOccupied(int x, int y) {
+		if (matrix[x + 7][y + 7] != 0)
+			return true;
+		else return false;
+	}
 }
