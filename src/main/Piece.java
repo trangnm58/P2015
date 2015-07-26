@@ -145,38 +145,39 @@ public class Piece {
 		// order: rotate => flip => rotate of flip
 		ArrayList<Piece> pieces = new ArrayList<Piece>();
 		
+		// the original piece
+		pieces.add(this);
+		
 		// add all rotate pieces if different
 		Piece p = rotate();
 		while (!equiv(p)) {
 			pieces.add(p);
 			p = p.rotate();
 		}
-		// add flip piece if different from original and all pieces in "pieces"
+		// add flip piece if different from all pieces in "pieces"
 		p = flip();
-		if (!equiv(p)) {
-			boolean flag = false;
-			for (int i=0; i < pieces.size(); i++) {
+		boolean flag = false;
+		for (int i = 0; i < pieces.size(); i++) {
+			// if flip piece equals 1 piece in pieces
+			if (p.equiv(pieces.get(i))) {
+				flag = true;
+			}
+		}
+		if (!flag) pieces.add(p);
+		
+		// add all rotate pieces of flip piece
+		Piece p2 = p.rotate();	// p is now flip piece
+
+		while (!p.equiv(p2)) {
+			flag = false;
+			for (int i = 0; i < pieces.size(); i++) {
 				// if flip piece equals 1 piece in pieces
-				if (p.equiv(pieces.get(i))) {
+				if (p2.equiv(pieces.get(i))) {
 					flag = true;
 				}
 			}
-			if (!flag) pieces.add(p);
-		}
-		// add all rotate pieces of flip piece
-		Piece p2 = p.rotate();	// p is now flip piece
-		if (!equiv(p2)) {
-			while (!p.equiv(p2)) {
-				boolean flag = false;
-				for (int i = 0; i < pieces.size(); i++) {
-					// if flip piece equals 1 piece in pieces
-					if (p2.equiv(pieces.get(i))) {
-						flag = true;
-					}
-				}
-				if (!flag) pieces.add(p2);
-				p2 = p2.rotate();
-			}
+			if (!flag) pieces.add(p2);
+			p2 = p2.rotate();
 		}
 		
 		// convert to Vector
